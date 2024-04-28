@@ -49,8 +49,8 @@ void state_update(State state) {
 			state->score++;
 		}
 
-		state->ball1.position.y = (int)(state->ball1.position.y + 5) % SCREEN_HEIGHT;
-		state->ball2.position.y = (int)(SCREEN_HEIGHT + state->ball2.position.y - 7) % SCREEN_HEIGHT;
+		state->ball1.position.y = (int)(SCREEN_HEIGHT + state->ball1.position.y - 4) % SCREEN_HEIGHT;
+		state->ball2.position.y = (int)(SCREEN_HEIGHT + state->ball2.position.y + 2) % SCREEN_HEIGHT;
 
 		if (IsKeyDown(KEY_UP))
 			state->character.y -= 3;

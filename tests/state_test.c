@@ -8,6 +8,7 @@
 #include "acutest.h"			// Απλή βιβλιοθήκη για unit testing
 
 #include "state.h"
+#include <math.h>
 
 
 ///// Βοηθητικές συναρτήσεις ////////////////////////////////////////
@@ -15,7 +16,7 @@
 // Ελέγχει την (προσεγγιστική) ισότητα δύο double
 // (λόγω λαθών το a == b δεν είναι ακριβές όταν συγκρίνουμε double).
 static bool double_equal(double a, double b) {
-	return abs(a-b) < 1e-6;
+	return fabs(a-b) < 1e-6;
 }
 
 // Ελέγχει την ισότητα δύο διανυσμάτων
@@ -29,13 +30,18 @@ void test_state_create() {
 
 	State state = state_create();
 	TEST_ASSERT(state != NULL);
-
+		
 	StateInfo info = state_info(state);
 	TEST_ASSERT(info != NULL);
-
 	TEST_ASSERT(!info->paused);
 	TEST_ASSERT(info->score == 0);
+		
+	List objects = state_objects(state, (Vector2){-450,350}, (Vector2){450,-350});
+	TEST_ASSERT(objects != NULL);
+	TEST_ASSERT(list_size(objects) == 6); // ASTEROID_NUM	
 
+	List objects2 = state_objects(state, (Vector2){10,10}, (Vector2){-10,-10});
+	TEST_ASSERT(objects2 != NULL);
 	// Προσθέστε επιπλέον ελέγχους
 }
 

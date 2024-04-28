@@ -109,8 +109,7 @@ State state_create() {
 // Επιστρέφει τις βασικές πληροφορίες του παιχνιδιού στην κατάσταση state
 
 StateInfo state_info(State state) {
-	// Προς υλοποίηση
-	return NULL;
+	return &state->info;
 }
 
 // Επιστρέφει μια λίστα με όλα τα αντικείμενα του παιχνιδιού στην κατάσταση state,
@@ -118,8 +117,13 @@ StateInfo state_info(State state) {
 // γωνία top_left και κάτω δεξιά bottom_right.
 
 List state_objects(State state, Vector2 top_left, Vector2 bottom_right) {
-	// Προς υλοποίηση
-	return NULL;
+	List res = list_create(NULL);
+	for (int i = 0; i < vector_size(state->objects); i++) {
+		Object obj = vector_get_at(state->objects, i);
+		if (&obj->position <= &top_left && &obj->position <= &bottom_right)
+			list_insert_next(res, LIST_BOF, obj);
+	}
+	return res;
 }
 
 // Ενημερώνει την κατάσταση state του παιχνιδιού μετά την πάροδο 1 frame.
@@ -127,6 +131,17 @@ List state_objects(State state, Vector2 top_left, Vector2 bottom_right) {
 
 void state_update(State state, KeyState keys) {
 	// Προς υλοποίηση
+	//Κίνηση αντικειμένων: τόσο η θέση όσο και η ταχύτητα κάθε αντικειμένου
+	//είναι διανύσματα που περιέχονται στον τύπο Object. Εφόσον η ταχύτητα
+	//εκφράζεται σε pixels/frame, η θέση σε κάθε update ενημερώνεται απλά
+	//προσθέτωντας το διάνυσμα της ταχύτητας σε αυτό της προηγόυμενης θέσης.
+	//List objects = state_objects(state, (Vector2){-450, 350}, (Vector2){450, -350});
+	if (keys->up){
+		state->info.spaceship->speed = (Vector2){0,SPACESHIP_ACCELERATION};
+		//state->info.spaceship->position = vec2_add(state->info.spaceship->position, state->info.spaceship->speed);
+	}
+		
+		
 }
 
 // Καταστρέφει την κατάσταση state ελευθερώνοντας τη δεσμευμένη μνήμη.
