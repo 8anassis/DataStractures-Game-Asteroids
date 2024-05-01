@@ -127,21 +127,73 @@ List state_objects(State state, Vector2 top_left, Vector2 bottom_right) {
 }
 
 // Ενημερώνει την κατάσταση state του παιχνιδιού μετά την πάροδο 1 frame.
-// Το keys περιέχει τα πλήκτρα τα οποία ήταν πατημένα κατά το frame αυτό.
-
 void state_update(State state, KeyState keys) {
-	// Προς υλοποίηση
-	//Κίνηση αντικειμένων: τόσο η θέση όσο και η ταχύτητα κάθε αντικειμένου
-	//είναι διανύσματα που περιέχονται στον τύπο Object. Εφόσον η ταχύτητα
-	//εκφράζεται σε pixels/frame, η θέση σε κάθε update ενημερώνεται απλά
-	//προσθέτωντας το διάνυσμα της ταχύτητας σε αυτό της προηγόυμενης θέσης.
-	//List objects = state_objects(state, (Vector2){-450, 350}, (Vector2){450, -350});
-	if (keys->up){
-		state->info.spaceship->speed = (Vector2){0,SPACESHIP_ACCELERATION};
-		//state->info.spaceship->position = vec2_add(state->info.spaceship->position, state->info.spaceship->speed);
+	
+	// Κίνηση των ASTEROID και BULLET
+	for ( int i = 0; i < vector_size(state->objects); i++ ){
+		Object obj = vector_get_at(state->objects, i);
+
+		obj->position = vec2_add(obj->position, obj->speed);
 	}
-		
-		
+
+	// Πλοήγηση διαστημόπλοιου.
+	if (keys->left){
+		state->info.spaceship->orientation = vec2_rotate(state->info.spaceship->orientation, SPACESHIP_ROTATION);
+	}
+
+	if (keys->right){
+		state->info.spaceship->orientation = vec2_rotate(state->info.spaceship->orientation, -SPACESHIP_ROTATION);
+	}
+
+	if (keys->up){
+		state->info.spaceship->speed = vec2_add(state->info.spaceship->speed, vec2_scale(state->info.spaceship->orientation, SPACESHIP_ACCELERATION));
+	}
+
+	if (!keys->up){
+		float num = vec2_distance(state->info.spaceship->speed, (Vector2){0,0});
+		if (num)
+		state->info.spaceship->speed = vec2_add(state->info.spaceship->speed, vec2_scale(state->info.spaceship->orientation, SPACESHIP_SLOWDOWN));
+	}
+
+	//Παύση και διακοπή:
+    if (keys->p){
+		state->info.paused = !state->info.paused;
+		if (state->info.paused == true && keys->n){
+			state_update(state, keys);
+		}
+	}
+
+	int count_asteroid = 0;
+	for (int i = 0; i < vector_size(state->objects); i++) {
+		Object obj = vector_get_at(state->objects, i);
+				
+		if (obj->type == ASTEROID){
+			if (vec2_distance(obj->position, state->info.spaceship->position) < 400){
+				count_asteroid += ASTEROID;
+				if (count_asteroid < ASTEROID_NUM){   
+				add_asteroids(state, ASTEROID_NUM - count_asteroid); // Διατήρησε τους ASTEROID στους 6, "κοντά" στο spaceship.
+				}
+			}
+			if ( CheckCollisionCircles(state->info.spaceship->position, state->info.spaceship->size /2, obj->position, obj->size /2)){
+			free(obj);
+			state->info.score = state->info.score / 2;
+			}
+		}
+	}
+
+	state->next_bullet += 1;
+	if (keys->space){
+		if (state->next_bullet > 15){
+			state->next_bullet = 0;
+			Object bullet = create_object(BULLET, state->info.spaceship->position,
+			vec2_add(state->info.spaceship->speed, vec2_scale(state->info.spaceship->orientation, BULLET_SPEED)),
+			state->info.spaceship->orientation, BULLET_SIZE);
+
+			vector_insert_last(state->objects, bullet);
+			
+		}
+
+	}
 }
 
 // Καταστρέφει την κατάσταση state ελευθερώνοντας τη δεσμευμένη μνήμη.

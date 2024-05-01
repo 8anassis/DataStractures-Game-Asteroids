@@ -61,11 +61,15 @@ void test_state_update() {
 	// Με πατημένο το πάνω βέλος, η ταχήτητα αυξάνεται ενώ το διαστημόπλοιο παραμένει για την ώρα ακίνητο
 	keys.up = true;
 	state_update(state, &keys);
-
+	//printf("speed: x:%f y:%f\n",state_info(state)->spaceship->speed.x, state_info(state)->spaceship->speed.y);
 	TEST_ASSERT( vec2_equal( state_info(state)->spaceship->position, (Vector2){0,0}) );
 	TEST_ASSERT( vec2_equal( state_info(state)->spaceship->speed,    (Vector2){0,SPACESHIP_ACCELERATION}) );
 
 	// Προσθέστε επιπλέον ελέγχους
+	keys.up = false;
+	state_update(state, &keys);
+	//printf("speed: x:%f y:%f\n",state_info(state)->spaceship->speed.x, state_info(state)->spaceship->speed.y); 	TEST_ASSERT( vec2_equal( state_info(state)->spaceship->position, (Vector2){0,0}) );
+	TEST_ASSERT( vec2_equal( state_info(state)->spaceship->speed,    (Vector2){0,1.08}) );
 }
 
 
